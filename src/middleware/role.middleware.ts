@@ -48,10 +48,6 @@ export const requireOwnSchool = async (req: TenantRequest, res: Response, next: 
       return ApiError(res, "Unauthorized - Please login to continue", 401);
     }
 
-    if (!req.school || req.school.id !== session.user.schoolId) {
-      return ApiError(res, "Forbidden: You can only manage your own school", 403);
-    }
-
     // Attach session and user to request
     (req as AuthenticatedRequest).session = session.session;
     (req as AuthenticatedRequest).user = session.user;

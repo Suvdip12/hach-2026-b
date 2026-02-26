@@ -5,7 +5,6 @@ import express, { Request, Response } from "express";
 import morgan from "morgan";
 
 import { pool } from "./db";
-import { tenantResolver } from "./middleware/tenant.middleware";
 import adminRouter from "./routes/admin.route";
 import analyticsRouter from "./routes/analytics.route";
 import assignmentRouter from "./routes/assignment.route";
@@ -30,25 +29,16 @@ import auth from "./utils/auth.util";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
 
 // Development Logging
 app.use(morgan("dev"));
 
-const allowedOriginRegex = /^https:\/\/([a-zA-Z0-9-]+)\.curiotech\.co$/;
-
-// CORS must be registered BEFORE all route handlers (including better-auth)
+// CORS - accept any origin for demo
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (origin === "http://localhost:3000" || allowedOriginRegex.test(origin)) {
-        return callback(null, origin); // exact origin returned
-      }
-      return callback(new Error("Not allowed by CORS"));
-    },
+    origin: true,
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "x-school-domain"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     optionsSuccessStatus: 200,
   }),
@@ -85,23 +75,23 @@ app.get("/api/me", async (req: Request, res: Response) => {
 app.use("/api/superAdmin", superAdminRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/password", authRouter);
-app.use("/api/student", tenantResolver, studentRouter);
-app.use("/api/school", tenantResolver, schoolRouter);
-app.use("/api/question", tenantResolver, questionRouter);
-app.use("/api/instructor", tenantResolver, instructorRouter);
-app.use("/api/lecture", tenantResolver, lectureRouter);
-app.use("/api/lecture-watched", tenantResolver, lectureWatchedRouter);
-app.use("/api/course", tenantResolver, courseRouter);
-app.use("/api/course-instructor", tenantResolver, courseInstructorRouter);
-app.use("/api/course-lecture", tenantResolver, courseLectureRouter);
-app.use("/api/packages", tenantResolver, packagesRouter);
+app.use("/api/student", studentRouter);
+app.use("/api/school", schoolRouter);
+app.use("/api/question", questionRouter);
+app.use("/api/instructor", instructorRouter);
+app.use("/api/lecture", lectureRouter);
+app.use("/api/lecture-watched", lectureWatchedRouter);
+app.use("/api/course", courseRouter);
+app.use("/api/course-instructor", courseInstructorRouter);
+app.use("/api/course-lecture", courseLectureRouter);
+app.use("/api/packages", packagesRouter);
 
-app.use("/api/assignment", tenantResolver, assignmentRouter);
-app.use("/api/qna-completed", tenantResolver, qnaCompletedRouter);
-app.use("/api/assignment-completed", tenantResolver, assignmentCompletedRouter);
-app.use("/api/comment", tenantResolver, commentRouter);
+app.use("/api/assignment", assignmentRouter);
+app.use("/api/qna-completed", qnaCompletedRouter);
+app.use("/api/assignment-completed", assignmentCompletedRouter);
+app.use("/api/comment", commentRouter);
 
-app.use("/api/analytics", tenantResolver, analyticsRouter);
+app.use("/api/analytics", analyticsRouter);
 app.use("/api/domain", domainRouter);
 
 // ----------------------------------------------------------- //
